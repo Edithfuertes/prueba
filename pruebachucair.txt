@@ -1,0 +1,103 @@
+/mi-proyecto
+|-- /src
+|   |-- /main
+|   |   |-- /java
+|   |   |   |-- /tasks
+|   |   |   |-- /questions
+|   |   |   |-- /userinterfaces
+|   |   |   |-- /models
+|   |   |-- /resources
+|   |       |-- /features
+|-- /test
+|   |-- /java
+|       |-- /stepdefinitions
+|-- .gitignore
+|-- pom.xml
+
+Feature: Registro y gestión de cuentas
+
+  Scenario: Registro de Usuario
+    Given I open the registration page
+    When I fill out the registration form
+    Then I should see a welcome message
+
+  Scenario: Creación de Cuenta
+    Given I am logged in
+    When I open a new savings account
+    Then I should see an account creation success message
+
+  Scenario: Transferencia de Fondos
+    Given I have funds in my account
+    When I transfer funds between accounts
+    Then I should see a transaction success message
+
+package tasks;
+
+import net.serenitybdd.screenplay.Actor;
+import net.serenitybdd.screenplay.Task;
+import net.serenitybdd.screenplay.actions.Open;
+import net.serenitybdd.screenplay.actions.Enter;
+import net.serenitybdd.screenplay.actions.Click;
+import userinterfaces.RegistrationPage;
+
+import static net.serenitybdd.screenplay.Tasks.instrumented;
+
+public class RegisterUser implements Task {
+
+    @Override
+    public <T extends Actor> void performAs(T actor) {
+        actor.attemptsTo(
+            Open.url("https://parabank.parasoft.com/parabank/index.htm"),
+            Click.on(RegistrationPage.REGISTER_LINK),
+            Enter.theValue("John").into(RegistrationPage.FIRST_NAME),
+            Enter.theValue("Doe").into(RegistrationPage.LAST_NAME),
+            // Completar el resto del formulario
+            Click.on(RegistrationPage.SUBMIT_BUTTON)
+        );
+    }
+
+    public static RegisterUser register() {
+        return instrumented(RegisterUser.class);
+    }
+}
+package userinterfaces;
+
+import net.serenitybdd.screenplay.targets.Target;
+
+public class RegistrationPage {
+    public static final Target REGISTER_LINK = Target.the("Register link")
+            .locatedBy("//a[text()='REGISTER']");
+    public static final Target FIRST_NAME = Target.the("First name input")
+            .locatedBy("#customer.firstName");
+    public static final Target LAST_NAME = Target.the("Last name input")
+            .locatedBy("#customer.lastName");
+    public static final Target SUBMIT_BUTTON = Target.the("Submit button")
+            .locatedBy("//input[@value='Register']");
+}
+package stepdefinitions;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import net.serenitybdd.screenplay.actors.OnStage;
+
+import static tasks.RegisterUser.register;
+
+public class RegistroUsuarioSteps {
+
+    @Given("I open the registration page")
+    public void i_open_the_registration_page() {
+        OnStage.theActorCalled("User").attemptsTo(register());
+    }
+
+    @When("I fill out the registration form")
+    public void i_fill_out_the_registration_form() {
+        // Implementar la lógica para llenar el formulario
+    }
+
+    @Then("I should see a welcome message")
+    public void i_should_see_a_welcome_message() {
+        // Validar el mensaje de bienvenida
+    }
+}
+
